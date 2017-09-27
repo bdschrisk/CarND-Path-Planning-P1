@@ -12,7 +12,7 @@
 
 #include "WorldMap.h"
 #include "Objects/Car.h"
-#include "Controllers\Model.h"
+#include "Controllers/Model.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -24,7 +24,7 @@ using json = nlohmann::json;
 // The max s value before wrapping around the track back to 0
 const double MAX_S = 6945.554;
 // Max speed to use
-const double MAX_SPEED = 22.1285;
+const double MAX_SPEED = 22.1265;
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -46,11 +46,9 @@ int main() {
 
   // Waypoint map to read from
   string map_file_ = "../data/highway_map.csv";
-  
-	WorldMap map(map_file_);
 
 	Model model;
-	model.environment = map;
+	model.environment.init(map_file_);
 
   h.onMessage([&model](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -89,19 +87,15 @@ int main() {
 					auto sensor_fusion = j[1]["sensor_fusion"];
 
 					// UPDATE //
-					model.update(ego, sensor_fusion);
-
-					json msgJson;
-
-					vector<double> next_x_vals;
-					vector<double> next_y_vals;
+					model.update(MAX_SPEED, ego, sensor_fusion);
 
 					// PLANNING //
-					Path path = model.plan(MAX_SPEED, previous_path_x, previous_path_y);
+					Path path = model.plan(end_path_s, end_path_d, previous_path_x, previous_path_y);
 					
-					next_x_vals = path.xPoints();
-					next_y_vals = path.yPoints();
+					vector<double> next_x_vals = path.xPoints();
+					vector<double> next_y_vals = path.yPoints();
 
+          json msgJson;
 					// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
 					msgJson["next_x"] = next_x_vals;
 					msgJson["next_y"] = next_y_vals;
@@ -153,83 +147,3 @@ int main() {
   }
   h.run();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

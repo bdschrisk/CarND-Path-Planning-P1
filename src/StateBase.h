@@ -10,6 +10,14 @@ class StateBase {
 public:
 	double x;
 	double y;
+	double theta;
+
+	StateBase() { };
+	StateBase(double x, double y, double theta) {
+		this->x = x;
+		this->y = y;
+		this->theta = theta;
+	}
 
 	virtual bool collides(StateBase other, double tolerance = 0.5) {
 

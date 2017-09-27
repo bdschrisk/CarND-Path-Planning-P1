@@ -2,6 +2,7 @@
 #define MAP_H_
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -16,8 +17,9 @@ public:
 	vector<double> waypoints_dy;
 
 	WorldMap();
-	WorldMap(string mapFile);
 	virtual ~WorldMap();
+
+	void init(string mapFile);
 
 	/* Returns the closest waypoint, in all directions, to the current state */
 	int closestWaypoint(double x, double y) const;

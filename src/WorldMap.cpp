@@ -1,15 +1,19 @@
 #include "WorldMap.h"
-#include "Helpers.h"
 
 #include <cmath>
 #include <iostream>
 #include <fstream>
 
+#include "Helpers.h"
+
 using namespace std;
 
-WorldMap::Map() { }
-WorldMap::Map(string mapFile) {
+WorldMap::WorldMap() { }
 
+WorldMap::~WorldMap() { }
+
+void WorldMap::init(string mapFile) {
+	
 	ifstream in_map_(mapFile.c_str(), ifstream::in);
 
 	string line;
@@ -34,8 +38,6 @@ WorldMap::Map(string mapFile) {
 		this->waypoints_dy.push_back(d_y);
 	}
 }
-
-WorldMap::~Map() { }
 
 int WorldMap::closestWaypoint(double x, double y) const
 {

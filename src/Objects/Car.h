@@ -1,6 +1,8 @@
 #ifndef CAR_H_
 #define CAR_H_
 
+#include <cmath>
+
 #include "../Search/State.h"
 #include "../Helpers.h"
 
@@ -28,12 +30,20 @@ public:
 
 	virtual ~Car() { }
 
-	StateBase realise(double t) const {
+	Car realise(double t) const {
 
-		StateBase state;
+		Car state;
 		state.x = this->x + (this->v * t * sin(this->theta));
 		state.y = this->y + (this->v * t * cos(this->theta));
+		state.theta = atan2(this->y - state.y, this->x - state.x);
 		
+		state.s = this->s + (this->v * t);
+		state.d = this->d;
+		state.v = this->v;
+		state.lane = this->lane;
+		state.width = this->width;
+		state.length = this->length;
+
 		return state;
 	};
 };

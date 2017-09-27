@@ -18,46 +18,71 @@ static double rad2deg(double x) { return x * 180 / PI; }
 
 static double clip(double v, double low, double high) { return max(low, min(v, high)); }
 
-static double distance(double x1, double x2) {
-	return sqrt(pow((x2 - x1), 2.0));
-}
+static double abs_distance(double x1, double x2) { return abs(x2 - x1); }
+
+static double distance(double x, double y) { return sqrt(pow(x, 2.0) + pow(y, 2.0)); }
 
 static double distance(double x1, double y1, double x2, double y2) {
 	return sqrt(pow((x2 - x1), 2.0) + pow((y2 - y1), 2.0));
 }
 
-static double translateLocalX(double xref, double yref, double theta, double x, double y) {
-	return ((x - xref) * cos(0 - theta) - (y - yref) * sin(0 - theta));
+static double translateLocalX(const double &xglobal, const double &yglobal, const double &theta, const double &xref, const double &yref) {
+	return ((xglobal - xref) * cos(0.0 - theta) - (yglobal - yref) * sin(0.0 - theta));
 }
 
-static double translateLocalY(double xref, double yref, double theta, double x, double y) {
-	return ((x - xref) * sin(0 - theta) + (y - yref) * cos(0 - theta));
+static double translateLocalY(const double &xglobal, const double &yglobal, const double &theta, const double &xref, const double &yref) {
+	return ((xglobal - xref) * sin(0.0 - theta) + (yglobal - yref) * cos(0.0 - theta));
 }
 
-static double translateGlobalX(double xlocal, double ylocal, double theta, double x, double y) {
-	return (xlocal * cos(theta) - ylocal * sin(theta)) + x;
+static double translateGlobalX(const double &xlocal, const double &ylocal, const double &theta, const double &xref) {
+	return (xlocal * cos(theta) - ylocal * sin(theta)) + xref;
 }
 
-static double translateGlobalY(double xlocal, double ylocal, double theta, double x, double y) {
-	return (xlocal * sin(theta) + ylocal * cos(theta)) + y;
+static double translateGlobalY(const double &xlocal, const double &ylocal, const double &theta, const double &yref) {
+	return (xlocal * sin(theta) + ylocal * cos(theta)) + yref;
 }
 
 static double velocity(double vx, double vy) {
 	return sqrt(pow(vx, 2.0) + pow(vy, 2.0));
 }
 
-static double metric_speed(double mph) {
-	return mph * 1.609344;
-}
+/**
+* Returns the final velocity.
+*/
+static double velocity(double vi, double a, double t) { return (vi + a * t); }
+/**
+* Returns the time required to reach the displacement.
+*/
+static double timeToDisplacement(double vi, double vf, double d) { return d / ((vi + vf) * 0.5); }
+/**
+* Returns the acceleration required for the given time delta.
+*/
+static double accelTime(double vi, double vf, double t) { return (vf - vi) / t; }
+/**
+* Returns the acceleration required for the given velocities and displacement.
+*/
+static double accelDisplacement(double vi, double vf, double d) { return (pow(vf, 2) - pow(vi, 2)) / (d * 2); }
+/**
+* Returns the time to reach the final velocity.
+*/
+static double velocityTime(double vi, double vf, double a) { return (vf - vi) / a; }
+/**
+* Returns the total displacement given the velocities and time delta.
+*/
+static double displacement(double vi, double vf, double t) { return (t * (vi + vf)) * 0.5; }
+
+static double metric_speed(double mph) { return ((mph * 1.609344) / 3.6); }
 
 static bool collides(double x1, double y1, double width1, double length1, 
 	double x2, double y2, double width2, double length2) {
 	
-	bool result = (x1 < x2 + width1 && x1 + width2 > x2);
-	result &= (y1 < y2 + length1 && y2 + length2 > y2);
-
-	return result;
+	return (x1 < x2 + width2 && x1 + width1 > x2 
+		 && y1 < y2 + length2 && length1 + y1 > y2);
 };
+
+static double rescale(double v, double min, double max, double new_min, double new_max) {
+	return clip((v - min) * (new_max - new_min) / (max - min) + new_min, new_min, new_max);
+}
 
 // Evaluate a polynomial.
 static double polyEval(Eigen::VectorXd coeffs, double x) {

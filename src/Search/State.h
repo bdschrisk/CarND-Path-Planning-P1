@@ -4,8 +4,6 @@
 #include "../StateBase.h"
 
 struct State : public StateBase {
-
-	double theta;
 	
 	int g;
 	double h;

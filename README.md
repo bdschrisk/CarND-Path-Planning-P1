@@ -3,7 +3,21 @@ Self-Driving Car Engineer Nanodegree Program
    
 ### Simulator. You can download the Term3 Simulator BETA which contains the Path Planning Project from the [releases tab](https://github.com/udacity/self-driving-car-sim/releases).
 
-In this project your goal is to safely navigate around a virtual highway with other traffic that is driving +-10 MPH of the 50 MPH speed limit. You will be provided the car's localization and sensor fusion data, there is also a sparse map list of waypoints around the highway. The car should try to go as close as possible to the 50 MPH speed limit, which means passing slower traffic when possible, note that other cars will try to change lanes too. The car should avoid hitting other cars at all cost as well as driving inside of the marked road lanes at all times, unless going from one lane to another. The car should be able to make one complete loop around the 6946m highway. Since the car is trying to go 50 MPH, it should take a little over 5 minutes to complete 1 loop. Also the car should not experience total acceleration over 10 m/s^2 and jerk that is greater than 50 m/s^3.
+## Overview
+In this project, a model is constructed to allow a car to drive on a simulated highway.  A number of factors are at play while the vehicle is in motion, including; keeping close to the speed limit and avoiding collisions with other cars.
+
+Originally in the project I intended to use a Hybrid A* planner to find the shortest path in a discretised state or snapshot of the highway.  Following research into highway planning and control, this would have been difficult and costly with compute resources.  Instead, I have opted for a physics based approach.  Using the equations of motion, the car is able to perform a number of key features:
+ - Brake within a set safety distance while minimising jerk
+ - Accelerate using an S-curve akin to real life systems
+ - Detect potential collisions within a certain timeframe
+
+ To facilitate the acceleration and braking, a spline was contructed for discrete velocities.  Acceleration is performed using an S curve from zero velocity and max acceleration, to max velocity and zero acceleration.  This works for any velocity "moment" and generates the required acceleration when the target velocity is higher than the current. Conversely, when braking, equations of motion are used to calculate the required braking distance and time required to pull up to a safe travelling distance.  Similarly, a deceleration curve is generated using these negative velocity moments.
+
+ The trajectory planner then solves for each waypoint generated, using these acceleration curves for maintaining safe driving.
+
+ Collision detection is performed by iteratively projceting each state forward in time and calculating possible collisions.  These are then used (or lack-of) to perform lane shifts.
+
+ Finally, when performing a lane shift, a cross product of the transition lane and the current is used to find the "average" velocity. This aids in speed matching when changing lanes.
 
 #### The map of the highway is in data/highway_map.txt
 Each waypoint in the list contains  [x,y,s,dx,dy] values. x and y are the waypoint's map coordinate position, the s value is the distance along the road to get to that waypoint in meters, the dx and dy values define the unit normal vector pointing outward of the highway loop.
